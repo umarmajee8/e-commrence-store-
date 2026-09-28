@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Product } from "../data/products";
 import { money } from "../data/products";
-import { EyeIcon, HeartIcon } from "./Icons";
+import { CheckIcon, EyeIcon, HeartIcon } from "./Icons";
 
 type Props = {
   product: Product;
@@ -13,11 +13,20 @@ type Props = {
 
 export default function ProductCard({ product, wished, onWish, onAdd, onQuickView }: Props) {
   const [added, setAdded] = useState(false);
+  const addedTimer = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (addedTimer.current !== null) window.clearTimeout(addedTimer.current);
+  }, []);
 
   const handleAdd = () => {
     onAdd();
     setAdded(true);
-    window.setTimeout(() => setAdded(false), 1400);
+    if (addedTimer.current !== null) window.clearTimeout(addedTimer.current);
+    addedTimer.current = window.setTimeout(() => {
+      setAdded(false);
+      addedTimer.current = null;
+    }, 2000);
   };
 
   return (
@@ -38,18 +47,25 @@ export default function ProductCard({ product, wished, onWish, onAdd, onQuickVie
             src={product.image}
             alt={product.alt}
             loading="lazy"
+            style={product.imageWidth ? { width: `${product.imageWidth}%` } : undefined}
             className="w-full object-contain mix-blend-multiply transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.08]"
           />
         </a>
 
         {/* Hover action bar */}
-        <div className="absolute inset-x-0 bottom-0 z-10 flex translate-y-full opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="product-action-bar absolute inset-x-0 bottom-0 z-10 flex transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
           <button
             type="button"
             onClick={handleAdd}
+            aria-live="polite"
             className="flex-1 bg-accent py-2.5 text-[11px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-ink lg:text-[12px]"
           >
-            {added ? "Added ✓" : "Add to cart"}
+            {added ? (
+              <span className="inline-flex items-center justify-center gap-1.5">
+                <span>Added</span>
+                <CheckIcon className="h-4 w-4" aria-hidden="true" />
+              </span>
+            ) : "Add to cart"}
           </button>
           <button
             type="button"

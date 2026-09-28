@@ -26,10 +26,10 @@ export default function Footer() {
       <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-x-6 gap-y-10 px-[15px] md:grid-cols-3 lg:grid-cols-[1.25fr_1fr_1fr_1fr_1.6fr] lg:gap-x-[30px]">
         <Reveal className="col-span-2 md:col-span-3 lg:col-span-1 lg:pt-[42px]">
           <a href="#" className="text-[32px] font-bold leading-none tracking-tight text-ink">
-            Laiba co.
+            Precious
           </a>
           <p className="mt-4 text-[13px] leading-[1.6] text-muted lg:text-[14px]">
-            © 2019 <a href="#" className="hover:text-accent">Laiba co.</a>.
+            © 2019 <a href="#" className="hover:text-accent">Precious</a>.
             <br />
             All Rights Reserved
           </p>

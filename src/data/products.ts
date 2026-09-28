@@ -7,6 +7,8 @@ import p6 from "../assets/raw/p6.jpg";
 import p7 from "../assets/raw/p7.jpg";
 import p8 from "../assets/raw/p8.jpg";
 import p9 from "../assets/raw/p9.jpg";
+import iphoneDuo from "../assets/raw/iphone-duo.jpg";
+import macbookAirM4 from "../assets/raw/macbook-air-m4.jpg";
 
 export type Product = {
   id: number;
@@ -16,6 +18,7 @@ export type Product = {
   price: number;
   oldPrice?: number;
   badge?: "new" | "sale";
+  imageWidth?: number;
 };
 
 export const PRODUCTS: Product[] = [
@@ -28,6 +31,8 @@ export const PRODUCTS: Product[] = [
   { id: 7, name: "T- Shirt And Jeans", alt: "White leather sneaker with black stripe", image: p7, price: 20, oldPrice: 22.22, badge: "sale" },
   { id: 8, name: "T- Shirt And Jeans", alt: "Rust red chino pants", image: p8, price: 50, badge: "new" },
   { id: 9, name: "T- Shirt And Jeans", alt: "White over-ear headphones", image: p9, price: 50, badge: "new" },
+  { id: 10, name: "iPhone Duo", alt: "Star White foldable smartphone with dual rear cameras", image: iphoneDuo, price: 1999, badge: "new" },
+  { id: 11, name: "MacBook Air M4", alt: "Midnight MacBook Air with a blue abstract display", image: macbookAirM4, price: 999, badge: "new", imageWidth: 72 },
 ];
 
 export const money = (n: number) => `$ ${n.toFixed(2)}`;

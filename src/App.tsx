@@ -7,7 +7,7 @@ import Footer from "./components/Footer";
 import { ArrowUp } from "./components/Icons";
 
 export default function App() {
-  const [cartCount, setCartCount] = useState(2);
+  const [cartCount, setCartCount] = useState(0);
   const [cartBump, setCartBump] = useState(0);
   const [wishlist, setWishlist] = useState<Set<number>>(new Set());
   const [showTop, setShowTop] = useState(false);
@@ -34,7 +34,7 @@ export default function App() {
 
   return (
     <>
-      <Header cartCount={cartCount} wishCount={wishlist.size} cartBump={cartBump} />
+      <Header cartCount={cartCount} cartBump={cartBump} />
       <main>
         <Hero />
         <Features />
