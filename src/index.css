@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --color-ink: #1f1f1f;
+  --color-body: #333333;
+  --color-muted: #7e7e7e;
+  --color-line: #e7e7e7;
+  --color-tile: #f5f5f5;
+  --color-accent: #a749ff;
+  --color-pink: #fa6bff;
+  --color-alert: #fa5252;
+  --color-footer: #f6f6f8;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #fff;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* ---------- Scroll reveal ---------- */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Hero entrance ---------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes line-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes slow-zoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.animate-fade-up {
+  opacity: 0;
+  animation: fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+.animate-line {
+  transform: scaleX(0);
+  animation: line-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+.animate-slow-zoom {
+  animation: slow-zoom 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal,
+  .animate-fade-up {
+    opacity: 1;
+    transform: none;
+  }
+  .animate-line {
+    transform: none;
+  }
+}
