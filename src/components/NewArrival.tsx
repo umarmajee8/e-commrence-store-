@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PRODUCTS, money, type Product } from "../data/products";
 import ProductCard from "./ProductCard";
 import Reveal from "./Reveal";
-import { CloseIcon, HeartIcon } from "./Icons";
+import { CheckIcon, CloseIcon, HeartIcon } from "./Icons";
 
 type Props = {
   wishlist: Set<number>;
@@ -13,6 +13,18 @@ type Props = {
 function QuickView({ product, onClose, onAdd, wished, onWish }: { product: Product; onClose: () => void; onAdd: (q: number) => void; wished: boolean; onWish: () => void }) {
   const [qty, setQty] = useState(1);
   const [shown, setShown] = useState(false);
+  const [added, setAdded] = useState(false);
+  const addedTimer = useRef<number | null>(null);
+
+  const handleAdd = () => {
+    onAdd(qty);
+    setAdded(true);
+    if (addedTimer.current !== null) window.clearTimeout(addedTimer.current);
+    addedTimer.current = window.setTimeout(() => {
+      setAdded(false);
+      addedTimer.current = null;
+    }, 2000);
+  };
 
   useEffect(() => {
     const t = requestAnimationFrame(() => setShown(true));
@@ -23,6 +35,7 @@ function QuickView({ product, onClose, onAdd, wished, onWish }: { product: Produ
       cancelAnimationFrame(t);
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
+      if (addedTimer.current !== null) window.clearTimeout(addedTimer.current);
     };
   }, [onClose]);
 
@@ -44,7 +57,12 @@ function QuickView({ product, onClose, onAdd, wished, onWish }: { product: Produ
           <CloseIcon className="h-6 w-6" />
         </button>
         <div className="grid aspect-square place-items-center bg-tile md:aspect-auto">
-          <img src={product.image} alt={product.alt} className="w-full mix-blend-multiply" />
+          <img
+            src={product.image}
+            alt={product.alt}
+            style={product.imageWidth ? { width: `${product.imageWidth}%` } : undefined}
+            className="w-full mix-blend-multiply"
+          />
         </div>
         <div className="flex flex-col justify-center p-7 md:p-10">
           <h2 className="text-[24px] font-medium text-ink">{product.name}</h2>
@@ -67,13 +85,16 @@ function QuickView({ product, onClose, onAdd, wished, onWish }: { product: Produ
             </div>
             <button
               type="button"
-              onClick={() => {
-                onAdd(qty);
-                onClose();
-              }}
+              onClick={handleAdd}
+              aria-live="polite"
               className="h-[52px] bg-ink px-8 text-[13px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-accent"
             >
-              Add to cart
+              {added ? (
+                <span className="inline-flex items-center justify-center gap-2">
+                  <span>Added</span>
+                  <CheckIcon className="h-4 w-4" aria-hidden="true" />
+                </span>
+              ) : "Add to cart"}
             </button>
             <button
               type="button"

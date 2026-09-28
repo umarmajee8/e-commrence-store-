@@ -24,11 +24,9 @@ export const SearchIcon = (p: P) => (
   </svg>
 );
 
-export const UserIcon = (p: P) => (
-  <svg {...base} {...p}>
-    <circle cx="12" cy="12" r="9" />
-    <circle cx="12" cy="10" r="3" />
-    <path d="M6.2 18.4a7 7 0 0 1 11.6 0" />
+export const CheckIcon = (p: P) => (
+  <svg {...base} strokeWidth={2} {...p}>
+    <path d="m5 12 4 4L19 6" />
   </svg>
 );
 

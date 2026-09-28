@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BagIcon, ChevronDown, CloseIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon } from "./Icons";
+import { BagIcon, ChevronDown, CloseIcon, MenuIcon, SearchIcon } from "./Icons";
 
 type NavItem = { label: string; children?: string[] };
 
@@ -12,43 +12,9 @@ const NAV: NavItem[] = [
   { label: "Contact" },
 ];
 
-function TopSelect({ value, options }: { value: string; options: string[] }) {
-  const [current, setCurrent] = useState(value);
-  return (
-    <div className="group relative">
-      <button
-        type="button"
-        className="flex items-center gap-1 py-3 text-[12px] text-body transition-colors hover:text-accent"
-        aria-haspopup="listbox"
-      >
-        {current}
-        <ChevronDown className="h-3 w-3" />
-      </button>
-      <ul
-        role="listbox"
-        className="invisible absolute left-0 top-full z-50 min-w-[110px] translate-y-2 rounded-sm bg-white py-2 opacity-0 shadow-[0_6px_24px_rgba(0,0,0,0.1)] transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100"
-      >
-        {options.map((o) => (
-          <li key={o}>
-            <button
-              type="button"
-              onClick={() => setCurrent(o)}
-              className={`block w-full px-4 py-1.5 text-left text-[12px] transition-colors hover:text-accent ${
-                o === current ? "text-accent" : "text-body"
-              }`}
-            >
-              {o}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+type HeaderProps = { cartCount: number; cartBump: number };
 
-type HeaderProps = { cartCount: number; wishCount: number; cartBump: number };
-
-export default function Header({ cartCount, wishCount, cartBump }: HeaderProps) {
+export default function Header({ cartCount, cartBump }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -66,24 +32,6 @@ export default function Header({ cartCount, wishCount, cartBump }: HeaderProps) 
 
   return (
     <>
-      {/* Top bar */}
-      <div className="hidden border-b border-line md:block">
-        <div className="mx-auto flex max-w-[1230px] items-center justify-between px-[15px]">
-          <div className="flex items-center">
-            <TopSelect value="English" options={["English", "Français", "Deutsch", "Español"]} />
-            <span className="mx-[26px] h-3 w-px bg-line" />
-            <TopSelect value="USD" options={["USD", "EUR", "GBP"]} />
-            <span className="mx-[26px] h-3 w-px bg-line" />
-            <a href="tel:3965410" className="text-[12px] text-body transition-colors hover:text-accent">
-              Call Us 3965410
-            </a>
-          </div>
-          <p className="text-[12px] text-body">
-            Free delivery on order over <span className="font-medium text-alert">$200</span>
-          </p>
-        </div>
-      </div>
-
       {/* Main header */}
       <header
         className={`sticky top-0 z-40 bg-white transition-shadow duration-300 ${
@@ -95,8 +43,8 @@ export default function Header({ cartCount, wishCount, cartBump }: HeaderProps) 
             scrolled ? "h-[70px]" : "h-[70px] lg:h-[90px]"
           }`}
         >
-          <a href="#" className="text-[28px] font-bold leading-none tracking-tight text-ink lg:text-[32px]" aria-label="Laiba co. home">
-            Laiba co.
+          <a href="#" className="text-[28px] font-bold leading-none tracking-tight text-ink lg:text-[32px]" aria-label="Precious home">
+            Precious
           </a>
 
           <nav aria-label="Primary" className="hidden lg:block">
@@ -135,17 +83,6 @@ export default function Header({ cartCount, wishCount, cartBump }: HeaderProps) 
           <div className="flex items-center gap-[18px] text-ink">
             <button type="button" aria-label="Search" className="transition-colors hover:text-accent">
               <SearchIcon className="h-[19px] w-[19px]" />
-            </button>
-            <button type="button" aria-label="Account" className="hidden transition-colors hover:text-accent sm:block">
-              <UserIcon className="h-[19px] w-[19px]" />
-            </button>
-            <button type="button" aria-label={`Wishlist, ${wishCount} items`} className="relative transition-colors hover:text-accent">
-              <HeartIcon className="h-[19px] w-[19px]" />
-              {wishCount > 0 && (
-                <span className="absolute -right-2 -top-2 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-accent px-1 text-[9px] font-medium leading-none text-white">
-                  {wishCount}
-                </span>
-              )}
             </button>
             <button type="button" aria-label={`Cart, ${cartCount} items`} className="relative transition-colors hover:text-accent">
               <BagIcon className="h-[20px] w-[20px]" />
@@ -186,7 +123,7 @@ export default function Header({ cartCount, wishCount, cartBump }: HeaderProps) 
         aria-label="Mobile menu"
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
-          <span className="text-2xl font-bold text-ink">Laiba co.</span>
+          <span className="text-2xl font-bold text-ink">Precious</span>
           <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="text-ink hover:text-accent">
             <CloseIcon className="h-6 w-6" />
           </button>
