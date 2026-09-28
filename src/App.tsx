@@ -1,29 +1,37 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
 import NewArrival from "./components/NewArrival";
 import Footer from "./components/Footer";
 import { ArrowUp } from "./components/Icons";
+import type { Product } from "./data/products";
+
+export type CartLine = { product: Product; quantity: number };
 
 export default function App() {
-  const [cartCount, setCartCount] = useState(0);
+  const [cart, setCart] = useState<CartLine[]>([]);
   const [cartBump, setCartBump] = useState(0);
-  const [wishlist, setWishlist] = useState<Set<number>>(new Set());
+  const [cartOpen, setCartOpen] = useState(false);
   const [showTop, setShowTop] = useState(false);
 
-  const addToCart = useCallback((qty = 1) => {
-    setCartCount((c) => c + qty);
+  const cartCount = useMemo(() => cart.reduce((total, line) => total + line.quantity, 0), [cart]);
+
+  const addToCart = useCallback((product: Product, qty = 1) => {
+    setCart((items) => {
+      const existing = items.find((line) => line.product.id === product.id);
+      return existing
+        ? items.map((line) => line.product.id === product.id ? { ...line, quantity: line.quantity + qty } : line)
+        : [...items, { product, quantity: qty }];
+    });
     setCartBump((b) => b + 1);
+    setCartOpen(true);
   }, []);
 
-  const toggleWish = useCallback((id: number) => {
-    setWishlist((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const changeCartQuantity = useCallback((productId: number, quantity: number) => {
+    setCart((items) => quantity <= 0
+      ? items.filter((line) => line.product.id !== productId)
+      : items.map((line) => line.product.id === productId ? { ...line, quantity } : line));
   }, []);
 
   useEffect(() => {
@@ -34,11 +42,18 @@ export default function App() {
 
   return (
     <>
-      <Header cartCount={cartCount} cartBump={cartBump} />
+      <Header
+        cart={cart}
+        cartCount={cartCount}
+        cartBump={cartBump}
+        cartOpen={cartOpen}
+        onCartOpenChange={setCartOpen}
+        onCartQuantityChange={changeCartQuantity}
+      />
       <main>
         <Hero />
         <Features />
-        <NewArrival wishlist={wishlist} onWish={toggleWish} onAdd={addToCart} />
+        <NewArrival onAdd={addToCart} />
       </main>
       <Footer />
 
