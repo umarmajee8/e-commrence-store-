@@ -2,22 +2,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PRODUCTS, money, type Product } from "../data/products";
 import ProductCard from "./ProductCard";
 import Reveal from "./Reveal";
-import { CheckIcon, CloseIcon, HeartIcon } from "./Icons";
+import { CheckIcon, CloseIcon } from "./Icons";
 
 type Props = {
-  wishlist: Set<number>;
-  onWish: (id: number) => void;
-  onAdd: (qty?: number) => void;
+  onAdd: (product: Product, qty?: number) => void;
 };
 
-function QuickView({ product, onClose, onAdd, wished, onWish }: { product: Product; onClose: () => void; onAdd: (q: number) => void; wished: boolean; onWish: () => void }) {
+function QuickView({ product, onClose, onAdd }: { product: Product; onClose: () => void; onAdd: (product: Product, q: number) => void }) {
   const [qty, setQty] = useState(1);
   const [shown, setShown] = useState(false);
   const [added, setAdded] = useState(false);
   const addedTimer = useRef<number | null>(null);
 
   const handleAdd = () => {
-    onAdd(qty);
+    onAdd(product, qty);
     setAdded(true);
     if (addedTimer.current !== null) window.clearTimeout(addedTimer.current);
     addedTimer.current = window.setTimeout(() => {
@@ -96,15 +94,6 @@ function QuickView({ product, onClose, onAdd, wished, onWish }: { product: Produ
                 </span>
               ) : "Add to cart"}
             </button>
-            <button
-              type="button"
-              onClick={onWish}
-              aria-pressed={wished}
-              aria-label="Toggle wishlist"
-              className={`grid h-[52px] w-[52px] place-items-center border border-line transition-colors hover:border-accent hover:text-accent ${wished ? "text-accent" : "text-ink"}`}
-            >
-              <HeartIcon filled={wished} className="h-5 w-5" />
-            </button>
           </div>
         </div>
       </div>
@@ -112,7 +101,7 @@ function QuickView({ product, onClose, onAdd, wished, onWish }: { product: Produ
   );
 }
 
-export default function NewArrival({ wishlist, onWish, onAdd }: Props) {
+export default function NewArrival({ onAdd }: Props) {
   const [quick, setQuick] = useState<Product | null>(null);
   const closeQuick = useCallback(() => setQuick(null), []);
 
@@ -132,9 +121,7 @@ export default function NewArrival({ wishlist, onWish, onAdd }: Props) {
             <Reveal key={p.id} delay={(i % 5) * 90}>
               <ProductCard
                 product={p}
-                wished={wishlist.has(p.id)}
-                onWish={() => onWish(p.id)}
-                onAdd={() => onAdd(1)}
+                onAdd={() => onAdd(p, 1)}
                 onQuickView={() => setQuick(p)}
               />
             </Reveal>
@@ -146,9 +133,7 @@ export default function NewArrival({ wishlist, onWish, onAdd }: Props) {
         <QuickView
           product={quick}
           onClose={closeQuick}
-          onAdd={(q) => onAdd(q)}
-          wished={wishlist.has(quick.id)}
-          onWish={() => onWish(quick.id)}
+          onAdd={onAdd}
         />
       )}
     </section>

@@ -1,17 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import type { Product } from "../data/products";
 import { money } from "../data/products";
-import { CheckIcon, EyeIcon, HeartIcon } from "./Icons";
+import { CheckIcon, EyeIcon } from "./Icons";
 
 type Props = {
   product: Product;
-  wished: boolean;
-  onWish: () => void;
   onAdd: () => void;
   onQuickView: () => void;
 };
 
-export default function ProductCard({ product, wished, onWish, onAdd, onQuickView }: Props) {
+export default function ProductCard({ product, onAdd, onQuickView }: Props) {
   const [added, setAdded] = useState(false);
   const addedTimer = useRef<number | null>(null);
 
@@ -95,15 +93,6 @@ export default function ProductCard({ product, wished, onWish, onAdd, onQuickVie
             )}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onWish}
-          aria-pressed={wished}
-          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-          className={`mt-0.5 shrink-0 transition-colors hover:text-accent ${wished ? "text-accent" : "text-muted"}`}
-        >
-          <HeartIcon filled={wished} className={`h-[15px] w-[15px] ${wished ? "animate-pop" : ""}`} />
-        </button>
       </div>
     </article>
   );
