@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { PRODUCTS, money, type Product } from "../data/products";
+import { useMemo, useRef, useState } from "react";
+import { money, type Product } from "../data/products";
+import { useStorefrontProducts } from "../store/store";
 import ProductCard from "./ProductCard";
 import Reveal from "./Reveal";
 import { CheckIcon, CloseIcon } from "./Icons";
@@ -8,9 +9,8 @@ type Props = {
   onAdd: (product: Product, qty?: number) => void;
 };
 
-function QuickView({ product, onClose, onAdd }: { product: Product; onClose: () => void; onAdd: (product: Product, q: number) => void }) {
+function QuickView({ product, onClose, onAdd }: { product: Product; onClose: () => void; onAdd: (product: Product, qty: number) => void }) {
   const [qty, setQty] = useState(1);
-  const [shown, setShown] = useState(false);
   const [added, setAdded] = useState(false);
   const addedTimer = useRef<number | null>(null);
 
@@ -24,32 +24,17 @@ function QuickView({ product, onClose, onAdd }: { product: Product; onClose: () 
     }, 2000);
   };
 
-  useEffect(() => {
-    const t = requestAnimationFrame(() => setShown(true));
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      cancelAnimationFrame(t);
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-      if (addedTimer.current !== null) window.clearTimeout(addedTimer.current);
-    };
-  }, [onClose]);
-
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={`${product.name} quick view`}
-      className={`fixed inset-0 z-[60] grid place-items-center p-4 transition-colors duration-300 ${shown ? "bg-black/50" : "bg-black/0"}`}
+      className="fixed inset-0 z-[60] grid place-items-center bg-black/50 p-4"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`relative grid max-h-[92vh] w-full max-w-[860px] overflow-y-auto bg-white transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:grid-cols-2 ${
-          shown ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
-        }`}
+        className="relative grid max-h-[92vh] w-full max-w-[860px] overflow-y-auto bg-white transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:grid-cols-2"
       >
         <button type="button" onClick={onClose} aria-label="Close" className="absolute right-4 top-4 z-10 text-ink hover:text-accent">
           <CloseIcon className="h-6 w-6" />
@@ -63,13 +48,22 @@ function QuickView({ product, onClose, onAdd }: { product: Product; onClose: () 
           />
         </div>
         <div className="flex flex-col justify-center p-7 md:p-10">
-          <h2 className="text-[24px] font-medium text-ink">{product.name}</h2>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-muted">{product.category}</p>
+          <h2 className="mt-2 text-[24px] font-medium text-ink">{product.name}</h2>
           <p className="mt-3 text-[22px] text-alert">
             {money(product.price)}
             {product.oldPrice && <del className="ml-3 text-[16px] text-muted">{money(product.oldPrice)}</del>}
           </p>
           <p className="mt-5 border-b border-line pb-6 text-[14px] leading-[26px] text-muted">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
+            {product.description ??
+              "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
+          </p>
+          <p className="mt-4 text-[12.5px] text-muted">
+            {product.stock > 0 ? (
+              <span className={product.stock <= 5 ? "text-alert" : ""}>{product.stock <= 5 ? `Only ${product.stock} left in stock` : "In stock"}</span>
+            ) : (
+              <span className="text-alert">Out of stock</span>
+            )}
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-4">
             <div className="flex h-[52px] items-center border border-line">
@@ -102,8 +96,12 @@ function QuickView({ product, onClose, onAdd }: { product: Product; onClose: () 
 }
 
 export default function NewArrival({ onAdd }: Props) {
+  const products = useStorefrontProducts();
   const [quick, setQuick] = useState<Product | null>(null);
-  const closeQuick = useCallback(() => setQuick(null), []);
+
+  // Keep the quick-view overlay in sync with edits made in the dashboard.
+  const current = useMemo(() => (quick ? products.find((p) => p.id === quick.id) ?? quick : null), [products, quick]);
+  const featured = useMemo(() => products.filter((p) => p.featured !== false), [products]);
 
   return (
     <section id="new-arrival" aria-labelledby="new-arrival-title" className="scroll-mt-24 pb-[50px] pt-[40px] lg:pb-[70px] lg:pt-[45px]">
@@ -116,23 +114,31 @@ export default function NewArrival({ onAdd }: Props) {
           <p className="mt-5 text-[13px] text-body lg:text-[14px]">Lorem ipsum dolor sit amet conse ctetu.</p>
         </Reveal>
 
-        <div className="grid grid-cols-2 gap-x-[15px] gap-y-8 sm:grid-cols-3 md:gap-x-[30px] lg:grid-cols-5 lg:gap-y-[30px]">
-          {PRODUCTS.map((p, i) => (
-            <Reveal key={p.id} delay={(i % 5) * 90}>
-              <ProductCard
-                product={p}
-                onAdd={() => onAdd(p, 1)}
-                onQuickView={() => setQuick(p)}
-              />
-            </Reveal>
-          ))}
-        </div>
+        {featured.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-line py-16 text-center">
+            <p className="text-[15px] font-medium text-ink">No products published yet</p>
+            <p className="mt-1.5 text-[13px] text-muted">Add and publish products from the admin dashboard to show them here.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-[15px] gap-y-8 sm:grid-cols-3 md:gap-x-[30px] lg:grid-cols-5 lg:gap-y-[30px]">
+            {featured.map((p, i) => (
+              <Reveal key={p.id} delay={(i % 5) * 90}>
+                <ProductCard
+                  product={p}
+                  onAdd={() => onAdd(p, 1)}
+                  onQuickView={() => setQuick(p)}
+                />
+              </Reveal>
+            ))}
+          </div>
+        )}
       </div>
 
-      {quick && (
+      {current && (
         <QuickView
-          product={quick}
-          onClose={closeQuick}
+          key={current.id}
+          product={current}
+          onClose={() => setQuick(null)}
           onAdd={onAdd}
         />
       )}

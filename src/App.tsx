@@ -4,12 +4,29 @@ import Hero from "./components/Hero";
 import Features from "./components/Features";
 import NewArrival from "./components/NewArrival";
 import Footer from "./components/Footer";
+import Toaster from "./components/Toaster";
 import { ArrowUp } from "./components/Icons";
+import AdminLogin from "./components/dashboard/AdminLogin";
+import Dashboard from "./components/dashboard/Dashboard";
 import type { Product } from "./data/products";
+import { useStore } from "./store/store";
 
 export type CartLine = { product: Product; quantity: number };
 
+/** Tiny hash router: "#/admin" opens the dashboard, anything else is the storefront. */
+function useRoute() {
+  const [hash, setHash] = useState(() => window.location.hash);
+  useEffect(() => {
+    const onChange = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", onChange);
+    return () => window.removeEventListener("hashchange", onChange);
+  }, []);
+  return hash.startsWith("#/admin") ? "admin" : "store";
+}
+
 export default function App() {
+  const { user, products } = useStore();
+  const route = useRoute();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartBump, setCartBump] = useState(0);
   const [cartOpen, setCartOpen] = useState(false);
@@ -34,11 +51,48 @@ export default function App() {
       : items.map((line) => line.product.id === productId ? { ...line, quantity } : line));
   }, []);
 
+  // Keep the cart in sync with dashboard edits: refresh prices/names, drop deleted products.
+  useEffect(() => {
+    setCart((items) => {
+      let changed = false;
+      const next: CartLine[] = [];
+      for (const line of items) {
+        const latest = products.find((product) => product.id === line.product.id);
+        if (!latest) {
+          changed = true;
+          continue;
+        }
+        if (latest !== line.product) {
+          changed = true;
+          next.push({ ...line, product: latest });
+        } else {
+          next.push(line);
+        }
+      }
+      return changed ? next : items;
+    });
+  }, [products]);
+
+  useEffect(() => {
+    document.title = route === "admin"
+      ? (user ? "Dashboard — Precious Store" : "Sign in — Precious Store")
+      : "Precious — Minimal Fashion Store";
+  }, [route, user]);
+
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 700);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  if (route === "admin") {
+    return (
+      <>
+        {user ? <Dashboard /> : <AdminLogin />}
+        <Toaster />
+      </>
+    );
+  }
 
   return (
     <>
@@ -67,6 +121,8 @@ export default function App() {
       >
         <ArrowUp className="h-4 w-4" />
       </button>
+
+      <Toaster />
     </>
   );
 }

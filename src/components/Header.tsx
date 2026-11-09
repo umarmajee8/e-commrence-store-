@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import { BagIcon, ChevronDown, CloseIcon, MenuIcon } from "./Icons";
 import { money, type Product } from "../data/products";
 
-type NavItem = { label: string; children?: string[] };
+type NavItem = { label: string; children?: string[]; href?: string };
 type CartLine = { product: Product; quantity: number };
 
 const NAV: NavItem[] = [
-  { label: "Home", children: ["Home Fashion", "Home Fashion Two", "Home Furniture", "Home Electronics"] },
-  { label: "Shop", children: ["Shop Grid Standard", "Shop Grid Filter", "Shop List", "Product Details"] },
-  { label: "Collection" },
+  { label: "Home", href: "#", children: ["Home Fashion", "Home Fashion Two", "Home Furniture", "Home Electronics"] },
+  { label: "Shop", href: "#new-arrival", children: ["Shop Grid Standard", "Shop Grid Filter", "Shop List", "Product Details"] },
+  { label: "Collection", href: "#new-arrival" },
   { label: "Pages", children: ["Cart", "Checkout", "Wishlist", "Compare", "My Account", "Login / Register"] },
-  { label: "About" },
-  { label: "Contact" },
+  { label: "Dashboard", href: "#/admin" },
+  { label: "Contact", href: "#" },
 ];
 
 type HeaderProps = {
@@ -62,7 +62,7 @@ export default function Header({ cart, cartCount, cartBump, cartOpen, onCartOpen
             <ul className="flex items-center gap-[34px] xl:gap-[40px]">
               {NAV.map((item) => (
                 <li key={item.label} className="group relative">
-                  <a href="#" className="relative flex items-center gap-1 py-8 text-[14px] font-medium text-body transition-colors hover:text-accent">
+                  <a href={item.href ?? "#"} className="relative flex items-center gap-1 py-8 text-[14px] font-medium text-body transition-colors hover:text-accent">
                     {item.label}
                     {item.children && <ChevronDown className="h-3 w-3 transition-transform duration-300 group-hover:rotate-180" />}
                     <span className="absolute bottom-[26px] left-0 h-px w-full origin-left scale-x-0 bg-accent transition-transform duration-300 group-hover:scale-x-100" />
@@ -78,6 +78,13 @@ export default function Header({ cart, cartCount, cartBump, cartOpen, onCartOpen
           </nav>
 
           <div className="flex items-center gap-[18px] text-ink">
+            <a
+              href="#/admin"
+              className="hidden items-center gap-1.5 rounded-full border border-line px-3.5 py-1.5 text-[11.5px] font-medium uppercase tracking-[0.08em] text-body transition-colors hover:border-ink hover:text-ink sm:inline-flex"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0b7a51]" aria-hidden="true" />
+              Admin
+            </a>
             <button type="button" aria-label={`Cart, ${cartCount} items`} aria-expanded={cartOpen} onClick={() => onCartOpenChange(true)} className="relative transition-colors hover:text-accent">
               <BagIcon className="h-[20px] w-[20px]" />
               <span key={cartBump} className={`absolute -right-2 -top-2.5 grid h-[16px] min-w-[16px] place-items-center rounded-full bg-ink px-1 text-[9px] font-medium leading-none text-white ${cartBump ? "animate-pop" : ""}`}>{String(cartCount).padStart(2, "0")}</span>
@@ -138,7 +145,7 @@ export default function Header({ cart, cartCount, cartBump, cartOpen, onCartOpen
               {item.children ? <>
                 <button type="button" onClick={() => setExpanded(expanded === item.label ? null : item.label)} className="flex w-full items-center justify-between py-3.5 text-[14px] font-medium text-body" aria-expanded={expanded === item.label}>{item.label}<ChevronDown className={`h-4 w-4 transition-transform duration-300 ${expanded === item.label ? "rotate-180" : ""}`} /></button>
                 <div className={`grid transition-[grid-template-rows] duration-300 ${expanded === item.label ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}><ul className="overflow-hidden">{item.children.map((child) => <li key={child}><a href="#" className="block py-2 pl-3 text-[13px] text-muted hover:text-accent">{child}</a></li>)}<li className="h-2" /></ul></div>
-              </> : <a href="#" className="block py-3.5 text-[14px] font-medium text-body hover:text-accent">{item.label}</a>}
+              </> : <a href={item.href ?? "#"} className="block py-3.5 text-[14px] font-medium text-body hover:text-accent">{item.label}</a>}
             </li>
           ))}</ul>
         </nav>

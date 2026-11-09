@@ -27,16 +27,23 @@ export default function ProductCard({ product, onAdd, onQuickView }: Props) {
     }, 2000);
   };
 
+  const soldOut = product.stock <= 0;
+  const discount = product.oldPrice && product.oldPrice > product.price
+    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+    : null;
+
   return (
     <article className="group">
       <div className="relative aspect-[3/4] overflow-hidden bg-tile">
-        {product.badge && (
-          <span
-            className={`absolute right-3 top-3 z-10 text-[11px] font-medium lg:right-4 lg:top-4 lg:text-[12px] ${
-              product.badge === "sale" ? "text-pink" : "text-accent"
-            }`}
-          >
-            {product.badge === "sale" ? "-10%" : "New"}
+        {product.badge === "new" && (
+          <span className="absolute right-3 top-3 z-10 text-[11px] font-medium text-accent lg:right-4 lg:top-4 lg:text-[12px]">New</span>
+        )}
+        {product.badge === "sale" && discount !== null && (
+          <span className="absolute right-3 top-3 z-10 text-[11px] font-medium text-pink lg:right-4 lg:top-4 lg:text-[12px]">-{discount}%</span>
+        )}
+        {soldOut && (
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-white/90 px-2.5 py-1 text-[10.5px] font-medium uppercase tracking-wide text-muted">
+            Sold out
           </span>
         )}
 
@@ -55,10 +62,11 @@ export default function ProductCard({ product, onAdd, onQuickView }: Props) {
           <button
             type="button"
             onClick={handleAdd}
+            disabled={soldOut}
             aria-live="polite"
-            className="flex-1 bg-accent py-2.5 text-[11px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-ink lg:text-[12px]"
+            className="flex-1 bg-accent py-2.5 text-[11px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:bg-muted/70 lg:text-[12px]"
           >
-            {added ? (
+            {soldOut ? "Sold out" : added ? (
               <span className="inline-flex items-center justify-center gap-1.5">
                 <span>Added</span>
                 <CheckIcon className="h-4 w-4" aria-hidden="true" />
